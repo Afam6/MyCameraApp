@@ -8,12 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		223C4E4A1FE36CF4000BEE43 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223C4E491FE36CF4000BEE43 /* AppDelegate.swift */; };
-		223C4E4C1FE36CF4000BEE43 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223C4E4B1FE36CF4000BEE43 /* ViewController.swift */; };
 		223C4E4F1FE36CF4000BEE43 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 223C4E4D1FE36CF4000BEE43 /* Main.storyboard */; };
 		223C4E511FE36CF4000BEE43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 223C4E501FE36CF4000BEE43 /* Assets.xcassets */; };
 		223C4E541FE36CF4000BEE43 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 223C4E521FE36CF4000BEE43 /* LaunchScreen.storyboard */; };
 		223C4E5F1FE36CF4000BEE43 /* MyCameraAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223C4E5E1FE36CF4000BEE43 /* MyCameraAppTests.swift */; };
 		223C4E6A1FE36CF4000BEE43 /* MyCameraAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223C4E691FE36CF4000BEE43 /* MyCameraAppUITests.swift */; };
+		223C4E7A1FE379D6000BEE43 /* ImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223C4E791FE379D6000BEE43 /* ImageCollectionViewCell.swift */; };
+		223C4E7C1FE37EE7000BEE43 /* ImageCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223C4E7B1FE37EE7000BEE43 /* ImageCollectionViewController.swift */; };
+		223C4E7F1FE38459000BEE43 /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 223C4E7E1FE38459000BEE43 /* Photos.framework */; };
+		2287E4451FE9238A00A7DA44 /* ImagePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2287E4441FE9238A00A7DA44 /* ImagePageViewController.swift */; };
+		2287E4471FE923A500A7DA44 /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2287E4461FE923A500A7DA44 /* ImageViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,7 +40,6 @@
 /* Begin PBXFileReference section */
 		223C4E461FE36CF4000BEE43 /* MyCameraApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyCameraApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		223C4E491FE36CF4000BEE43 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		223C4E4B1FE36CF4000BEE43 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		223C4E4E1FE36CF4000BEE43 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		223C4E501FE36CF4000BEE43 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		223C4E531FE36CF4000BEE43 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -47,6 +50,11 @@
 		223C4E651FE36CF4000BEE43 /* MyCameraAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyCameraAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		223C4E691FE36CF4000BEE43 /* MyCameraAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCameraAppUITests.swift; sourceTree = "<group>"; };
 		223C4E6B1FE36CF5000BEE43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		223C4E791FE379D6000BEE43 /* ImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCollectionViewCell.swift; sourceTree = "<group>"; };
+		223C4E7B1FE37EE7000BEE43 /* ImageCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCollectionViewController.swift; sourceTree = "<group>"; };
+		223C4E7E1FE38459000BEE43 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
+		2287E4441FE9238A00A7DA44 /* ImagePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePageViewController.swift; sourceTree = "<group>"; };
+		2287E4461FE923A500A7DA44 /* ImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +62,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				223C4E7F1FE38459000BEE43 /* Photos.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +90,7 @@
 				223C4E5D1FE36CF4000BEE43 /* MyCameraAppTests */,
 				223C4E681FE36CF4000BEE43 /* MyCameraAppUITests */,
 				223C4E471FE36CF4000BEE43 /* Products */,
+				223C4E7D1FE38459000BEE43 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -98,11 +108,14 @@
 			isa = PBXGroup;
 			children = (
 				223C4E491FE36CF4000BEE43 /* AppDelegate.swift */,
-				223C4E4B1FE36CF4000BEE43 /* ViewController.swift */,
 				223C4E4D1FE36CF4000BEE43 /* Main.storyboard */,
 				223C4E501FE36CF4000BEE43 /* Assets.xcassets */,
 				223C4E521FE36CF4000BEE43 /* LaunchScreen.storyboard */,
 				223C4E551FE36CF4000BEE43 /* Info.plist */,
+				223C4E791FE379D6000BEE43 /* ImageCollectionViewCell.swift */,
+				223C4E7B1FE37EE7000BEE43 /* ImageCollectionViewController.swift */,
+				2287E4441FE9238A00A7DA44 /* ImagePageViewController.swift */,
+				2287E4461FE923A500A7DA44 /* ImageViewController.swift */,
 			);
 			path = MyCameraApp;
 			sourceTree = "<group>";
@@ -123,6 +136,14 @@
 				223C4E6B1FE36CF5000BEE43 /* Info.plist */,
 			);
 			path = MyCameraAppUITests;
+			sourceTree = "<group>";
+		};
+		223C4E7D1FE38459000BEE43 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				223C4E7E1FE38459000BEE43 /* Photos.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -259,8 +280,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				223C4E4C1FE36CF4000BEE43 /* ViewController.swift in Sources */,
+				223C4E7C1FE37EE7000BEE43 /* ImageCollectionViewController.swift in Sources */,
+				223C4E7A1FE379D6000BEE43 /* ImageCollectionViewCell.swift in Sources */,
 				223C4E4A1FE36CF4000BEE43 /* AppDelegate.swift in Sources */,
+				2287E4471FE923A500A7DA44 /* ImageViewController.swift in Sources */,
+				2287E4451FE9238A00A7DA44 /* ImagePageViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -429,6 +453,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 649NXX47HL;
 				INFOPLIST_FILE = MyCameraApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.thegypsy.MyCameraApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -444,6 +469,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 649NXX47HL;
 				INFOPLIST_FILE = MyCameraApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.thegypsy.MyCameraApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
