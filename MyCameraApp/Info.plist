@@ -39,7 +39,11 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To Access Photos</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string></string>
+	<string>To Save The Photo To Your Photo Library</string>
+	<key>NSCameraUsageDescription</key>
+	<string>To Take Photos</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>To Save The Location Of Where The Photo Was Taken</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

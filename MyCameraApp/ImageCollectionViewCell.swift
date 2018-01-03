@@ -10,5 +10,5 @@ import UIKit
 
 class ImageCollectionViewCell: UICollectionViewCell, UIScrollViewDelegate {
     @IBOutlet weak var imageView: UIImageView!
-
+    
 }

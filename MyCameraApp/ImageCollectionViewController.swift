@@ -9,10 +9,9 @@
 import UIKit
 import Photos
 
-class ImageCollectionViewController: UICollectionViewController {
+class ImageCollectionViewController: UICollectionViewController, UIViewControllerTransitioningDelegate, UINavigationControllerDelegate {
     
     var indexPath: IndexPath!
-    var imageArray = [UIImage]()
     var imageFetchResult = PHFetchResult<PHAsset>()
     let shapeLayer = CAShapeLayer()
     let trackLayer = CAShapeLayer()
@@ -28,8 +27,21 @@ class ImageCollectionViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("view did load")
+        
+        collectionView?.isPagingEnabled = true
+        
+        if PHPhotoLibrary.authorizationStatus() == PHAuthorizationStatus.authorized{
+            print("authorized")
+        } else {
+            print("unauthorized")
+        }
+        
+        navigationController?.delegate = self
         
         NotificationCenter.default.addObserver(self, selector: #selector(ImageCollectionViewController.rotated), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(appMovedToForeground), name: Notification.Name.UIApplicationWillEnterForeground, object: nil)
         
         grabPhotos()
         
@@ -54,15 +66,35 @@ class ImageCollectionViewController: UICollectionViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
+        super.viewWillAppear(true)
+        if imageFetchResult.count > 0 {
+            print("view will appear")
+            grabPhotos()
+        }
         navigationController?.hidesBarsOnTap = false
+        navigationController?.setToolbarHidden(true, animated: true)
+        navigationController?.setNavigationBarHidden(false, animated: true)
+        self.tabBarController?.tabBar.isHidden = false
         rotated()
+        
+    }
+    
+    @objc func appMovedToForeground() {
+        grabPhotos()
+        collectionView?.reloadData()
     }
     
     @objc func rotated() {
+        
+        if UIDevice.current.orientation.isFlat {
+            print("orientation is flat")
+        } else {
+            print("orientation is not flat")
+        }
         if UIDeviceOrientationIsLandscape(UIDevice.current.orientation) {
+            print("Landscape")
             let collectionViewWidth = collectionView?.frame.width
-            
+            print("width \(String(describing: collectionViewWidth))")
             let layout = collectionViewLayout as! UICollectionViewFlowLayout
             layout.itemSize = CGSize(width: collectionViewWidth!/6 - 1, height: collectionViewWidth!/6 - 1)
             
@@ -75,6 +107,8 @@ class ImageCollectionViewController: UICollectionViewController {
         
         if UIDeviceOrientationIsPortrait(UIDevice.current.orientation) {
             let collectionViewWidth = collectionView?.frame.width
+            
+            print("width \(String(describing: collectionViewWidth))")
             
             let padding: CGFloat = 2.0
             
@@ -101,21 +135,26 @@ class ImageCollectionViewController: UICollectionViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imageArray.count
+        return imageFetchResult.count
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
+        let phAsset: PHAsset = self.imageFetchResult[indexPath.item]
+        
         let imageCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCell", for: indexPath) as! ImageCollectionViewCell
         
-        imageCell.imageView.image = imageArray[indexPath.item]
+        PHImageManager.default().requestImage(for: phAsset, targetSize: CGSize(width:500, height: 500), contentMode: .aspectFill, options: nil, resultHandler: { (result, info) in
+            if let image = result {
+                imageCell.imageView.image = image
+            }
+        })
         
         return imageCell
     }
     
     //MARK: UICollectionViewDelegate
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
         self.indexPath = indexPath
         performSegue(withIdentifier: "ShowImageViewController", sender: nil)
         
@@ -126,9 +165,9 @@ class ImageCollectionViewController: UICollectionViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "ShowImageViewController" {
             let page = segue.destination as! ImagePageViewController
-            page.imageArray = imageArray
             page.index = indexPath.item
             page.imageFetchResult = imageFetchResult
+            page.transitioningDelegate = self
         }
     }
  
@@ -177,14 +216,8 @@ class ImageCollectionViewController: UICollectionViewController {
     
     //MARK: grabPhotos
     func grabPhotos() {
-        imageArray = []
         
         DispatchQueue.global(qos: .background).async {
-            
-            print("This is run on the background queue")
-            
-            let phImageManager = PHImageManager.default()
-            
             let phImageRequestOptions = PHImageRequestOptions()
             phImageRequestOptions.isSynchronous = true
             phImageRequestOptions.deliveryMode = .highQualityFormat
@@ -197,11 +230,8 @@ class ImageCollectionViewController: UICollectionViewController {
             print(phFetchResult.count)
             self.imageFetchResult = phFetchResult
             if phFetchResult.count > 0 {
-                for i in 0..<phFetchResult.count{
+                for i in 0..<phFetchResult.count {
                     let percentage = CGFloat(i+1) / CGFloat(phFetchResult.count)
-                    phImageManager.requestImage(for: phFetchResult.object(at: i) as PHAsset, targetSize: CGSize(width:500, height: 500),contentMode: .aspectFill, options: phImageRequestOptions, resultHandler: { (image, error) in
-                        self.imageArray.append(image!)
-                    })
                     print(i)
                     DispatchQueue.main.async {
                         self.percentageLabel.text = "\(Int(percentage * 100))%"
@@ -215,15 +245,34 @@ class ImageCollectionViewController: UICollectionViewController {
                 self.percentageTracker = 100
             } else {
                 print("You got no photos.")
+                if PHPhotoLibrary.authorizationStatus() != PHAuthorizationStatus.denied{
+                    print("not denied")
+                    self.grabPhotos()
+                } else {
+                    print("denied")
+                }
             }
-            print("imageArray count: \(self.imageArray.count)")
             
             DispatchQueue.main.async {
-                print("This is run on the main queue, after the previous code in outer block")
                 self.collectionView?.reloadData()
                 self.percentageLabel.text = ""
             }
         }
     }
+    
+    let animationController = AnimationController()
+    let interactionController = InteractionController()
+    
+    func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationControllerOperation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        if operation == .push {
+            interactionController.attachToViewController(viewController: toVC)
+        }
+        animationController.reverse = operation == .pop
+        return animationController
+    }
+    
+    func navigationController(_ navigationController: UINavigationController, interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+        
+        return interactionController.transitionInProgress ? interactionController : nil
+    }
 }
-

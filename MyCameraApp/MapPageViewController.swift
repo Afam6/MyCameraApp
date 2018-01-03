@@ -1,54 +1,18 @@
 //
-//  ImagePageViewController.swift
+//  MapPageViewController.swift
 //  MyCameraApp
 //
-//  Created by Afam Ezechukwu on 19/12/2017.
-//  Copyright © 2017 The Gypsy. All rights reserved.
+//  Created by Afam Ezechukwu on 03/01/2018.
+//  Copyright © 2018 The Gypsy. All rights reserved.
 //
 
 import UIKit
 import Photos
 
-class ImagePageViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+class MapPageViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
     
-    var imageFetchResult = PHFetchResult<PHAsset>()
+    var phAssets = [PHAsset]()
     var index: Int!
-    
-    @IBAction func trashImage(_ sender: Any) {
-        print("trashing image")
-        let alert = UIAlertController(title: "Delete Image", message: "Are you sure you want to delete this image?", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (alertAction) in
-            let assetToDelete = [self.imageFetchResult[self.index]]
-            PHPhotoLibrary.shared().performChanges({
-                PHAssetChangeRequest.deleteAssets(assetToDelete as NSFastEnumeration)
-            }, completionHandler: {(success, error)in
-                NSLog("\nDeleted Image -> %@", (success ? "Success":"Error!"))
-                alert.dismiss(animated: true, completion: nil)
-                if(success){
-                    // Move to the main thread to execute
-                    DispatchQueue.main.async(execute: {
-                        if(self.imageFetchResult.count == 0){
-                            print("No Images Left!!")
-                            if let navController = self.navigationController {
-                                navController.popToRootViewController(animated: true)
-                            }
-                        }else{
-                            if let navController = self.navigationController {
-                                navController.popToRootViewController(animated: true)
-                            }
-                        }
-                    })
-                }else{
-                    print("Error: \(String(describing: error))")
-                }
-            })
-        }))
-        
-        alert.addAction(UIAlertAction(title: "No", style: .default, handler: { (alertAction) in
-            alert.dismiss(animated: true, completion: nil)
-        }))
-        self.present(alert, animated: true, completion: nil)
-    }
     
     override var prefersStatusBarHidden: Bool {
         return navigationController?.isNavigationBarHidden == true
@@ -57,39 +21,34 @@ class ImagePageViewController: UIPageViewController, UIPageViewControllerDataSou
     override func viewDidLoad() {
         super.viewDidLoad()
         delegate = self
-        let startingViewController: ImageViewController = self.viewControllerAtIndex(index, storyboard: self.storyboard!)!
+        let startingViewController: MapImageViewController = self.viewControllerAtIndex(index, storyboard: self.storyboard!)!
         setNavigationTitle(index: index)
         let viewControllers = [startingViewController]
         setViewControllers(viewControllers, direction: .forward, animated: false, completion: {done in })
         dataSource = self
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        setNavigationTitle(index: index)
+    func viewControllerAtIndex(_ index: Int, storyboard: UIStoryboard) -> MapImageViewController? {
         
-    }
-    
-    func viewControllerAtIndex(_ index: Int, storyboard: UIStoryboard) -> ImageViewController? {
-        
-        if (self.imageFetchResult.count == 0) || (index >= self.imageFetchResult.count) {
+        if (self.phAssets.count == 0) || (index >= self.phAssets.count) {
             return nil
         }
         
-        let imageViewController = storyboard.instantiateViewController(withIdentifier: "ImageViewController") as! ImageViewController
-        imageViewController.phAsset = self.imageFetchResult[index]
-        imageViewController.index = index
-        imageViewController.imageFetchResult = self.imageFetchResult
-        return imageViewController
+        let mapImageViewController = storyboard.instantiateViewController(withIdentifier: "MapImageViewController") as! MapImageViewController
+        mapImageViewController.phAsset = self.phAssets[index]
+        mapImageViewController.index = index
+        mapImageViewController.phAssets = self.phAssets
+        return mapImageViewController
     }
     
-    func indexOfViewController(_ viewController: ImageViewController) -> Int {
-        return imageFetchResult.index(of: viewController.phAsset!)
+    func indexOfViewController(_ viewController: MapImageViewController) -> Int {
+        return phAssets.index(of: viewController.phAsset!)!
     }
     
     // MARK: - Page View Controller Data Source
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        var index = self.indexOfViewController(viewController as! ImageViewController)
+        var index = self.indexOfViewController(viewController as! MapImageViewController)
         self.index = index
         setNavigationTitle(index: index)
         if (index == 0) || (index == NSNotFound) {
@@ -101,7 +60,7 @@ class ImagePageViewController: UIPageViewController, UIPageViewControllerDataSou
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        var index = self.indexOfViewController(viewController as! ImageViewController)
+        var index = self.indexOfViewController(viewController as! MapImageViewController)
         self.index = index
         setNavigationTitle(index: index)
         if index == NSNotFound {
@@ -109,16 +68,16 @@ class ImagePageViewController: UIPageViewController, UIPageViewControllerDataSou
         }
         
         index += 1
-        if index == self.imageFetchResult.count {
+        if index == self.phAssets.count {
             return nil
         }
         return self.viewControllerAtIndex(index, storyboard: viewController.storyboard!)
     }
     
     func setNavigationTitle(index:Int) {
-        if imageFetchResult[index].location != nil {
-            let latitude = Double((imageFetchResult[index].location?.coordinate.latitude)!)
-            let longitude = Double((imageFetchResult[index].location?.coordinate.longitude)!)
+        if phAssets[index].location != nil {
+            let latitude = Double((phAssets[index].location?.coordinate.latitude)!)
+            let longitude = Double((phAssets[index].location?.coordinate.longitude)!)
             let location = CLLocation(latitude: latitude, longitude: longitude)
             let geocoder = CLGeocoder()
             geocoder.reverseGeocodeLocation(location) {placemarks, error in
@@ -129,7 +88,7 @@ class ImagePageViewController: UIPageViewController, UIPageViewControllerDataSou
                     
                     let calendar = Calendar.current
                     let currentYear = calendar.component(.year, from: Date())
-                    let pictureYear = calendar.component(.year, from: self.imageFetchResult[index].creationDate!)
+                    let pictureYear = calendar.component(.year, from: self.phAssets[index].creationDate!)
                     if currentYear != pictureYear{
                         print("Different year!")
                         dateFormatter.dateFormat = "d MMMM yyyy HH:mm"
@@ -137,7 +96,7 @@ class ImagePageViewController: UIPageViewController, UIPageViewControllerDataSou
                         dateFormatter.dateFormat = "d MMMM HH:mm"
                     }
                     
-                    let subtitle = dateFormatter.string(from: self.imageFetchResult[index].creationDate!)
+                    let subtitle = dateFormatter.string(from: self.phAssets[index].creationDate!)
                     self.navigationItem.titleView = self.setTitle(title: title, subtitle: subtitle)
                     
                 }
@@ -148,7 +107,7 @@ class ImagePageViewController: UIPageViewController, UIPageViewControllerDataSou
             
             let calendar = Calendar.current
             let currentYear = calendar.component(.year, from: Date())
-            let pictureYear = calendar.component(.year, from: self.imageFetchResult[index].creationDate!)
+            let pictureYear = calendar.component(.year, from: self.phAssets[index].creationDate!)
             if currentYear != pictureYear{
                 print("Different year!")
                 date.dateFormat = "d MMMM yyyy"
@@ -158,8 +117,8 @@ class ImagePageViewController: UIPageViewController, UIPageViewControllerDataSou
                 time.dateFormat = "HH:mm"
             }
             
-            let title = date.string(from: self.imageFetchResult[index].creationDate!)
-            let subtitle = time.string(from: self.imageFetchResult[index].creationDate!)
+            let title = date.string(from: self.phAssets[index].creationDate!)
+            let subtitle = time.string(from: self.phAssets[index].creationDate!)
             print("Time is \(title) \(subtitle). Index is \(index)")
             self.navigationItem.titleView = self.setTitle(title: title, subtitle: subtitle)
         }
@@ -221,4 +180,10 @@ class ImagePageViewController: UIPageViewController, UIPageViewControllerDataSou
         
         return string
     }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+
 }
