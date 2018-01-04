@@ -24,12 +24,13 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
         return label
     }()
     var percentageTracker = 0
+    var orientation: UIDeviceOrientation = UIDevice.current.orientation
     
     override func viewDidLoad() {
         super.viewDidLoad()
         print("view did load")
         
-        collectionView?.isPagingEnabled = true
+        collectionView?.isPagingEnabled = false
         
         if PHPhotoLibrary.authorizationStatus() == PHAuthorizationStatus.authorized{
             print("authorized")
@@ -75,8 +76,20 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
         navigationController?.setToolbarHidden(true, animated: true)
         navigationController?.setNavigationBarHidden(false, animated: true)
         self.tabBarController?.tabBar.isHidden = false
-        rotated()
+    
         
+        
+        if UIDevice.current.orientation.isFlat && orientation.isLandscape {
+            print("view is flat and landscape")
+            let collectionViewWidth = collectionView?.frame.width
+            print("width \(String(describing: collectionViewWidth))")
+            let layout = collectionViewLayout as! UICollectionViewFlowLayout
+            layout.itemSize = CGSize(width: collectionViewWidth!/6 - 1, height: collectionViewWidth!/6 - 1)
+
+        } else {
+            print("view is not flat")
+            rotated()
+        }
     }
     
     @objc func appMovedToForeground() {
@@ -86,13 +99,19 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
     
     @objc func rotated() {
         
+        
         if UIDevice.current.orientation.isFlat {
             print("orientation is flat")
+            
         } else {
             print("orientation is not flat")
+            
         }
-        if UIDeviceOrientationIsLandscape(UIDevice.current.orientation) {
-            print("Landscape")
+        
+        if UIDeviceOrientationIsLandscape(UIDevice.current.orientation){
+            orientation = UIDevice.current.orientation
+            
+            print("Flat Landscape")
             let collectionViewWidth = collectionView?.frame.width
             print("width \(String(describing: collectionViewWidth))")
             let layout = collectionViewLayout as! UICollectionViewFlowLayout
@@ -106,8 +125,10 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
         }
         
         if UIDeviceOrientationIsPortrait(UIDevice.current.orientation) {
-            let collectionViewWidth = collectionView?.frame.width
+            orientation = UIDevice.current.orientation
             
+            let collectionViewWidth = collectionView?.frame.width
+            print("Flat Portrait")
             print("width \(String(describing: collectionViewWidth))")
             
             let padding: CGFloat = 2.0
@@ -144,7 +165,7 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
         
         let imageCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCell", for: indexPath) as! ImageCollectionViewCell
         
-        PHImageManager.default().requestImage(for: phAsset, targetSize: CGSize(width:500, height: 500), contentMode: .aspectFill, options: nil, resultHandler: { (result, info) in
+        PHImageManager.default().requestImage(for: phAsset, targetSize: CGSize(width:100, height: 100), contentMode: .aspectFill, options: nil, resultHandler: { (result, info) in
             if let image = result {
                 imageCell.imageView.image = image
             }
@@ -230,14 +251,16 @@ class ImageCollectionViewController: UICollectionViewController, UIViewControlle
             print(phFetchResult.count)
             self.imageFetchResult = phFetchResult
             if phFetchResult.count > 0 {
-                for i in 0..<phFetchResult.count {
-                    let percentage = CGFloat(i+1) / CGFloat(phFetchResult.count)
-                    print(i)
-                    DispatchQueue.main.async {
-                        self.percentageLabel.text = "\(Int(percentage * 100))%"
-                        self.shapeLayer.strokeEnd = percentage
+                if self.percentageTracker == 0 {
+                    for i in 0..<phFetchResult.count {
+                        let percentage = CGFloat(i+1) / CGFloat(phFetchResult.count)
+                        print(i)
+                        DispatchQueue.main.async {
+                            self.percentageLabel.text = "\(Int(percentage * 100))%"
+                            self.shapeLayer.strokeEnd = percentage
+                        }
+                        self.percentageTracker = Int(percentage)
                     }
-                    self.percentageTracker = Int(percentage)
                 }
                 self.trackLayer.removeFromSuperlayer()
                 self.shapeLayer.removeFromSuperlayer()

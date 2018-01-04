@@ -28,6 +28,11 @@ class MapPageViewController: UIPageViewController, UIPageViewControllerDataSourc
         dataSource = self
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        setNavigationTitle(index: index)
+        
+    }
+    
     func viewControllerAtIndex(_ index: Int, storyboard: UIStoryboard) -> MapImageViewController? {
         
         if (self.phAssets.count == 0) || (index >= self.phAssets.count) {
@@ -99,6 +104,26 @@ class MapPageViewController: UIPageViewController, UIPageViewControllerDataSourc
                     let subtitle = dateFormatter.string(from: self.phAssets[index].creationDate!)
                     self.navigationItem.titleView = self.setTitle(title: title, subtitle: subtitle)
                     
+                } else {
+                    let date = DateFormatter()
+                    let time = DateFormatter()
+                    
+                    let calendar = Calendar.current
+                    let currentYear = calendar.component(.year, from: Date())
+                    let pictureYear = calendar.component(.year, from: self.phAssets[index].creationDate!)
+                    if currentYear != pictureYear{
+                        print("Different year!")
+                        date.dateFormat = "d MMMM yyyy"
+                        time.dateFormat = "HH:mm"
+                    } else {
+                        date.dateFormat = "d MMMM"
+                        time.dateFormat = "HH:mm"
+                    }
+                    
+                    let title = date.string(from: self.phAssets[index].creationDate!)
+                    let subtitle = time.string(from: self.phAssets[index].creationDate!)
+                    print("Time is \(title) \(subtitle). Index is \(index)")
+                    self.navigationItem.titleView = self.setTitle(title: title, subtitle: subtitle)
                 }
             }
         } else {

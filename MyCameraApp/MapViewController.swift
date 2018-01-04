@@ -18,6 +18,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     var locationManager = CLLocationManager()
     var photoAnnotations = [ImageAnnotation]()
     var photoDictionary = [CLLocationCoordinate2D: [MKAnnotation]]()
+    var subtitleDictionary = [CLLocationCoordinate2D: String]()
 
     @IBOutlet var mapView: MKMapView!
     
@@ -132,6 +133,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
                         if placemarks?.count ?? 0 > 0 {
                             let placemark = placemarks![0]
                             annotation.subtitle = "At \(self.stringForPlacemark(placemark))"
+                            self.subtitleDictionary[annotationCoordinate] = annotation.subtitle
                             print(annotation.subtitle!)
                         }
                     }
@@ -231,16 +233,13 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         if view.annotation is ImageAnnotation {
             let annotation = view.annotation as! ImageAnnotation
-            if annotation.subtitle == nil {
-                let location = CLLocation(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude)
-                let geocoder = CLGeocoder()
-                geocoder.reverseGeocodeLocation(location) {placemarks, error in
-                    if placemarks?.count ?? 0 > 0 {
-                        let placemark = placemarks![0]
-                        annotation.subtitle = "At \(self.stringForPlacemark(placemark))"
-                    }
+            
+                if annotation.subtitle == nil {
+                    print("title is '\(String(describing: annotation.subtitle))' ")
+                    
+                    annotation.subtitle = self.subtitleDictionary[CLLocationCoordinate2DMake(annotation.coordinate.latitude, annotation.coordinate.longitude)]
                 }
-            }
+            
         }
         
     }

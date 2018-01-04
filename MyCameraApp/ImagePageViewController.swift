@@ -140,6 +140,26 @@ class ImagePageViewController: UIPageViewController, UIPageViewControllerDataSou
                     let subtitle = dateFormatter.string(from: self.imageFetchResult[index].creationDate!)
                     self.navigationItem.titleView = self.setTitle(title: title, subtitle: subtitle)
                     
+                } else {
+                    let date = DateFormatter()
+                    let time = DateFormatter()
+                    
+                    let calendar = Calendar.current
+                    let currentYear = calendar.component(.year, from: Date())
+                    let pictureYear = calendar.component(.year, from: self.imageFetchResult[index].creationDate!)
+                    if currentYear != pictureYear{
+                        print("Different year!")
+                        date.dateFormat = "d MMMM yyyy"
+                        time.dateFormat = "HH:mm"
+                    } else {
+                        date.dateFormat = "d MMMM"
+                        time.dateFormat = "HH:mm"
+                    }
+                    
+                    let title = date.string(from: self.imageFetchResult[index].creationDate!)
+                    let subtitle = time.string(from: self.imageFetchResult[index].creationDate!)
+                    print("Time is \(title) \(subtitle). Index is \(index)")
+                    self.navigationItem.titleView = self.setTitle(title: title, subtitle: subtitle)
                 }
             }
         } else {
