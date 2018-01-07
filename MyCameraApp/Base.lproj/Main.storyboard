@@ -210,7 +210,7 @@
         <!--Image Page View Controller-->
         <scene sceneID="U6g-EY-6cg">
             <objects>
-                <pageViewController autoresizesArchivedViewToFullSize="NO" transitionStyle="scroll" navigationOrientation="horizontal" spineLocation="none" id="GR9-97-TdJ" customClass="ImagePageViewController" customModule="MyCameraApp" customModuleProvider="target" sceneMemberID="viewController">
+                <pageViewController transitionStyle="scroll" pageSpacing="2" navigationOrientation="horizontal" spineLocation="none" id="GR9-97-TdJ" customClass="ImagePageViewController" customModule="MyCameraApp" customModuleProvider="target" sceneMemberID="viewController">
                     <toolbarItems>
                         <barButtonItem systemItem="action" id="1VV-8v-4bl">
                             <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -232,7 +232,6 @@
                         </barButtonItem>
                     </toolbarItems>
                     <navigationItem key="navigationItem" id="Mnu-7Z-dAb"/>
-                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                 </pageViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FNo-hk-X8A" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -695,6 +694,7 @@
                 <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="uRF-LG-XBh" sceneMemberID="viewController">
                     <toolbarItems/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="sZi-dM-nma">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <color key="barTintColor" red="0.34901960780000002" green="0.80784313730000001" blue="0.52549019610000003" alpha="1" colorSpace="calibratedRGB"/>

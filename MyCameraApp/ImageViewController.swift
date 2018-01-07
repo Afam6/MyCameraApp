@@ -31,7 +31,7 @@ class ImageViewController: UIViewController, UIScrollViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        print("view will appear ...")
         print((self.navigationController?.toolbar.items?.first)!)
         self.navigationController?.toolbar.items?.first?.target = self
         self.navigationController?.toolbar.items?.first?.action = #selector(shareImage)
@@ -88,6 +88,7 @@ class ImageViewController: UIViewController, UIScrollViewDelegate {
     
     @objc private func tapScreen() {
         print("tapped screen")
+        self.viewWillAppear(false)
         if (self.navigationController?.isNavigationBarHidden)!{
             self.navigationController?.setNavigationBarHidden(false, animated: true)
             self.navigationController?.setToolbarHidden(false, animated: true)
