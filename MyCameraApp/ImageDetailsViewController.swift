@@ -15,6 +15,9 @@ class ImageDetailsViewController: UIViewController {
     @IBAction func closeButton(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
+    @IBAction func uploadToServer(_ sender: Any) {
+        myImageUploadRequest()
+    }
     
     @IBOutlet var descriptionTextView: UITextView!
     @IBOutlet weak var mapView: MKMapView!
@@ -26,6 +29,88 @@ class ImageDetailsViewController: UIViewController {
     var imageFetchResult = PHFetchResult<PHAsset>()
     var dictionary = Dictionary<String, String>()
     var descriptionDictionary = Dictionary<String, String>()
+    var image: UIImage?
+    
+    func myImageUploadRequest() {
+        let myURL = URL(string: "http://143.167.194.13:8091/uploadPicture")
+        var request = URLRequest(url: myURL!)
+        request.httpMethod = "POST"
+        let param = [
+            "title" : self.titleLabel.text!,
+            "description" : self.descriptionTextView.text!,
+            "longitiude" : self.phAsset?.location?.coordinate.longitude as Any,
+            "latitude" : self.phAsset?.location?.coordinate.latitude as Any,
+            "dateTaken" : self.phAsset?.creationDate as Any
+            ] as [String : Any]
+        let boundary = generateBoundaryString()
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        var imageData: NSData? = nil
+        PHImageManager.default().requestImage(for: self.phAsset!, targetSize: CGSize(width:500, height: 500), contentMode: .aspectFill, options: nil, resultHandler: {(result, info) in
+            
+            self.image = result
+            
+        })
+        imageData = UIImagePNGRepresentation(self.image!) as NSData?
+        if imageData == nil { return }
+        request.httpBody = createBodyWithParameters(parameters: param, filePathKey: "filename", imageDataKey: imageData! as NSData, boundary: boundary) as Data
+        let task = URLSession.shared.uploadTask(with: request, from: imageData! as Data){data, response, error in
+            if error != nil {
+                print("error=\(String(describing: error))")
+                return
+            }
+            // You can print out response object
+            print("******* response = \(String(describing: response))")
+            
+            // Print out response body
+            let responseString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
+            print("****** response data = \(responseString!)")
+            
+            do {
+                let json = try JSONSerialization.jsonObject(with: data!, options: []) as? NSDictionary
+                
+                print("JSON \(json!)")
+                
+            }catch
+            {
+                print("JSON ERROR \(error)")
+            }
+            
+        }
+        
+        task.resume()
+        
+    }
+    
+    func generateBoundaryString() -> String {
+        return "Boundary-\(NSUUID().uuidString)"
+    }
+    
+    func createBodyWithParameters(parameters: [String: Any]?, filePathKey: String?, imageDataKey: NSData, boundary: String) -> NSData {
+        let body = NSMutableData();
+        
+        if parameters != nil {
+            for (key, value) in parameters! {
+                body.appendString(string: "--\(boundary)\r\n")
+                body.appendString(string: "Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
+                body.appendString(string: "\(value)\r\n")
+            }
+        }
+        
+        
+        let mimetype = "image/png"
+        
+        body.appendString(string: "--\(boundary)\r\n")
+        body.appendString(string: "Content-Disposition: form-data; name=\"\(filePathKey!)\"; \"\r\n")
+        body.appendString(string: "Content-Type: \(mimetype)\r\n\r\n")
+        body.append(imageDataKey as Data)
+        body.appendString(string: "\r\n")
+        
+        
+        
+        body.appendString(string: "--\(boundary)--\r\n")
+        
+        return body
+    }
     
     @IBAction func unwindToDetails(sender: UIStoryboardSegue) {
         print("Saved")
@@ -136,4 +221,11 @@ extension PHAsset {
     }
 }
 
+extension NSMutableData {
+    
+    func appendString(string: String) {
+        let data = string.data(using: String.Encoding.utf8, allowLossyConversion: true)
+        append(data!)
+    }
+}
 
