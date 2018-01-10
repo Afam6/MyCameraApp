@@ -30,30 +30,46 @@ class ImageDetailsViewController: UIViewController {
     var dictionary = Dictionary<String, String>()
     var descriptionDictionary = Dictionary<String, String>()
     var image: UIImage?
+    var fileName = String()
     
     func myImageUploadRequest() {
-        let myURL = URL(string: "http://143.167.194.13:8091/uploadPicture")
+        print("Button tapped")
+        let myURL = URL(string: "https://photo-server-trung674.c9users.io:8080/uploadpicture")
         var request = URLRequest(url: myURL!)
         request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var roundLat = String()
+        var roundLon = String()
+        if self.phAsset?.location != nil {
+            let latitude = Double((self.phAsset?.location?.coordinate.latitude)!)
+            let longitude = Double((self.phAsset?.location?.coordinate.longitude)!)
+            
+            let doubleLat = Double(round(1000*latitude)/1000)
+            let doubleLon = Double(round(100*longitude)/100)
+            
+            roundLat = "\(String(describing: doubleLat))"
+            roundLon = "\(String(describing: doubleLon))"
+        } else {
+            roundLat = "0"
+            roundLon = "0"
+        }
+        
         let param = [
             "title" : self.titleLabel.text!,
             "description" : self.descriptionTextView.text!,
-            "longitiude" : self.phAsset?.location?.coordinate.longitude as Any,
-            "latitude" : self.phAsset?.location?.coordinate.latitude as Any,
-            "dateTaken" : self.phAsset?.creationDate as Any
-            ] as [String : Any]
+            "longitiude" : roundLon,
+            "latitude" : roundLat,
+            "dateTaken" : self.label.text
+        ]
         let boundary = generateBoundaryString()
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         var imageData: NSData? = nil
-        PHImageManager.default().requestImage(for: self.phAsset!, targetSize: CGSize(width:500, height: 500), contentMode: .aspectFill, options: nil, resultHandler: {(result, info) in
-            
-            self.image = result
-            
-        })
+        
         imageData = UIImagePNGRepresentation(self.image!) as NSData?
         if imageData == nil { return }
-        request.httpBody = createBodyWithParameters(parameters: param, filePathKey: "filename", imageDataKey: imageData! as NSData, boundary: boundary) as Data
-        let task = URLSession.shared.uploadTask(with: request, from: imageData! as Data){data, response, error in
+        request.httpBody = self.createRequestBodyWith(parameters: param as! [String : NSObject], filePathKey: "image", boundary: boundary) as Data
+        
+        let task = URLSession.shared.dataTask(with: request){data, response, error in
             if error != nil {
                 print("error=\(String(describing: error))")
                 return
@@ -76,8 +92,9 @@ class ImageDetailsViewController: UIViewController {
             }
             
         }
-        
-        task.resume()
+        DispatchQueue.global(qos: DispatchQoS.QoSClass.background).async(execute: {
+            task.resume()
+        })
         
     }
     
@@ -85,32 +102,32 @@ class ImageDetailsViewController: UIViewController {
         return "Boundary-\(NSUUID().uuidString)"
     }
     
-    func createBodyWithParameters(parameters: [String: Any]?, filePathKey: String?, imageDataKey: NSData, boundary: String) -> NSData {
-        let body = NSMutableData();
+    func createRequestBodyWith(parameters:[String:NSObject], filePathKey:String, boundary:String) -> NSData{
         
-        if parameters != nil {
-            for (key, value) in parameters! {
-                body.appendString(string: "--\(boundary)\r\n")
-                body.appendString(string: "Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
-                body.appendString(string: "\(value)\r\n")
-            }
+        let body = NSMutableData()
+        
+        for (key, value) in parameters {
+            body.appendString(string: "--\(boundary)\r\n")
+            body.appendString(string: "Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
+            body.appendString(string: "\(value)\r\n")
         }
         
-        
-        let mimetype = "image/png"
-        
         body.appendString(string: "--\(boundary)\r\n")
-        body.appendString(string: "Content-Disposition: form-data; name=\"\(filePathKey!)\"; \"\r\n")
+        
+        let mimetype = "image/jpg"
+        
+        let imageData = UIImageJPEGRepresentation(self.image!, 1)
+        
+        body.appendString(string: "Content-Disposition: form-data; name=\"\(filePathKey)\"; filename=\"\(self.fileName)\"\r\n")
         body.appendString(string: "Content-Type: \(mimetype)\r\n\r\n")
-        body.append(imageDataKey as Data)
+        body.append(imageData!)
         body.appendString(string: "\r\n")
-        
-        
         
         body.appendString(string: "--\(boundary)--\r\n")
         
         return body
     }
+
     
     @IBAction func unwindToDetails(sender: UIStoryboardSegue) {
         print("Saved")
@@ -129,6 +146,28 @@ class ImageDetailsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        PHImageManager.default().requestImage(for: self.phAsset!, targetSize: CGSize(width:500, height: 500), contentMode: .aspectFill, options: nil, resultHandler: {(result, info) in
+            
+            self.image = result
+            
+        })
+        PHImageManager.default().requestImage(for: self.phAsset!, targetSize: CGSize(width:500, height: 500), contentMode: .aspectFill, options:
+            nil, resultHandler: {(result, info) in
+                if result != nil {
+                    self.image = result
+                    let imageManager = PHImageManager.default()
+                    imageManager.requestImageData(for: self.phAsset!, options: nil, resultHandler:{
+                        (data, responseString, imageOriet, info) -> Void in
+                        let imageData: NSData = data! as NSData
+                        if let imageSource = CGImageSourceCreateWithData(imageData, nil) {
+                            _ = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil)! as NSDictionary
+                            
+                            self.fileName = ((info?["PHImageFileURLKey"] as? NSURL)?.lastPathComponent)!
+                        }
+                        
+                    })
+                }
+        })
 
         dictionary = Dictionary<String, String>(minimumCapacity: imageFetchResult.count)
         descriptionDictionary = Dictionary<String, String>(minimumCapacity: imageFetchResult.count)
@@ -227,5 +266,6 @@ extension NSMutableData {
         let data = string.data(using: String.Encoding.utf8, allowLossyConversion: true)
         append(data!)
     }
+ 
 }
 

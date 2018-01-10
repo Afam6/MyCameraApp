@@ -96,7 +96,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
                         let longitude = Double((pictureCoordinate?.longitude)!)
                         
                         let roundLat = Double(round(1000*latitude)/1000)
-                        let roundLon = Double(round(100*longitude)/100)
+                        let roundLon = Double(round(1000*longitude)/1000)
                         
                         let annotation = ImageAnnotation()
                         let annotationCoordinate = CLLocationCoordinate2DMake(roundLat, roundLon)
