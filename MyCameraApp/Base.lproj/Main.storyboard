@@ -725,7 +725,7 @@
         <image name="camera" width="30" height="30"/>
         <image name="gallery" width="30" height="30"/>
         <image name="icons8-round-filled-100" width="100" height="100"/>
-        <image name="icons8-switch-camera-filled-50" width="40" height="40"/>
+        <image name="icons8-switch-camera-filled-50" width="50" height="50"/>
         <image name="worldwide_location" width="30" height="30"/>
     </resources>
 </document>
