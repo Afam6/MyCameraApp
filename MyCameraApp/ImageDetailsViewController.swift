@@ -45,7 +45,7 @@ class ImageDetailsViewController: UIViewController {
             let longitude = Double((self.phAsset?.location?.coordinate.longitude)!)
             
             let doubleLat = Double(round(1000*latitude)/1000)
-            let doubleLon = Double(round(100*longitude)/100)
+            let doubleLon = Double(round(1000*longitude)/1000)
             
             roundLat = "\(String(describing: doubleLat))"
             roundLon = "\(String(describing: doubleLon))"
